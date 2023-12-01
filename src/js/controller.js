@@ -1,4 +1,5 @@
 import DragAndDrop from './dragAndDrop';
+import View from './view';
 
 export default class Controller {
   constructor() {
@@ -8,6 +9,7 @@ export default class Controller {
       'done': []
     }
     this.dnd = new DragAndDrop(this);
+    this.view = new View(this);
   }
 
   init() {
@@ -22,37 +24,43 @@ export default class Controller {
     addCards.forEach(addCard => addCard.addEventListener('click', this.onCellClick));
   }
 
-  createForm(e) {
+  addForm(e) {
     const elem = e.target;
     const parent = elem.closest('.column');
-    const form = document.createElement('form');
-    const textarea = document.createElement('textarea');
-    const btnAddCard = document.createElement('button');
-    const btnDelete = document.createElement('button');
+    const form = this.view.createForm();
+    // const form = document.createElement('form');
+    // const textarea = document.createElement('textarea');
+    // const btnAddCard = document.createElement('button');
+    // const btnDelete = document.createElement('button');
     
-    textarea.placeholder = "Enter a title for this card...";
-    btnAddCard.textContent = "Add Card";
-    btnDelete.textContent = `\u{00d7}`;
+    // textarea.placeholder = "Enter a title for this card...";
+    // btnAddCard.textContent = "Add Card";
+    // btnDelete.textContent = `\u{00d7}`;
     
-    form.classList.add('form');
-    btnAddCard.classList.add('btn');
-    btnAddCard.classList.add('btn-add-crd');
-    btnDelete.classList.add('btn-delete');
+    // form.classList.add('form');
+    // btnAddCard.classList.add('btn');
+    // btnAddCard.classList.add('btn-add-crd');
+    // btnDelete.classList.add('btn-delete');
     
-    form.appendChild(textarea);
-    form.appendChild(btnAddCard);
-    form.appendChild(btnDelete);
+    // form.appendChild(textarea);
+    // form.appendChild(btnAddCard);
+    // form.appendChild(btnDelete);
+    
     parent.appendChild(form);
+
+    const btnAddCard = parent.querySelector('.btn-add-crd');
+    const btnDelete = parent.querySelector('.btn-delete');
     
     btnAddCard.addEventListener('click', this.onCellClick);
     btnDelete.addEventListener('click', this.onCellClick);
   };
 
-  createButton(e) {
+  addButton(e) {
     const elem = e.target;
     const parent = elem.closest('.column');
 
-    const button = document.createElement('button');
+    // const button = document.createElement('button');
+    const button = this.view.createButton();
 
     button.classList.add('btn');
     button.classList.add('btn-add');
@@ -63,34 +71,39 @@ export default class Controller {
     button.addEventListener('click', this.onCellClick);
   }
 
-  createNewCard(e) {
+  addNewCard(e) {
     const elem = e.target;
     const parent = elem.closest('.column');
     const cards = parent.querySelector('.cards');
-    const data = this.getDataForm();
-    const index = this.lists[parent.id].length;
+    const newCard = this.view.createNewCard(e);
+    // const data = this.getDataForm();
+    // const index = this.lists[parent.id].length;
 
-    const newCard = document.createElement('div');
-    const btnDelete = document.createElement('button');
+    // const newCard = document.createElement('div');
+    // const btnDelete = document.createElement('button');
 
-    newCard.classList.add('card');
-    btnDelete.classList.add('btn-delete');
+    // newCard.classList.add('card');
+    // btnDelete.classList.add('btn-delete');
 
-    newCard.dataset.index = index;
-    newCard.dataset.columnIndex = parent.id;
-    newCard.textContent = data;
-    btnDelete.textContent = `\u{00d7}`;
+    // newCard.dataset.index = index;
+    // newCard.dataset.columnIndex = parent.id;
+    // newCard.textContent = data;
+    // btnDelete.textContent = `\u{00d7}`;
 
     this.lists[parent.id].push(newCard);
-    newCard.appendChild(btnDelete);
+
+    // newCard.appendChild(btnDelete);
     cards.appendChild(newCard);
+    
+    const btnDelete = newCard.querySelector('.btn-delete');
+
     btnDelete.addEventListener('click', this.onCellClick);
   }
 
-  getDataForm() {
-    const textarea = document.querySelector('textarea');
-    return textarea.value;
-  }
+  // getDataForm() {
+  //   const textarea = document.querySelector('textarea');
+  //   return textarea.value;
+  // }
 
   removeForm(e) {
     const elem = e.target;
@@ -108,23 +121,24 @@ export default class Controller {
 
     if (form) {
       if (!elem.className.includes('delete')) {
-        if (this.getDataForm()) {
-          this.createNewCard(e);
-          this.createButton(e);
+        if (this.view.getDataForm()) {
+          this.addNewCard(e);
+          this.addButton(e);
           this.removeForm(e);
         } else {
-          this.createButton(e);
-          thi.removeForm(e);
+          this.addButton(e);
+          this.removeForm(e);
         }
       } else {
-        this.createButton(e);
+        this.addButton(e);
+      
         this.removeForm(e);
       }
     } else if (card) {
       this.lists[card.getAttribute('data-column-index')] = this.lists[card.getAttribute('data-column-index')].filter(el => el.getAttribute('data-index') !== card.getAttribute('data-index'));
       card.remove();
     } else {
-      this.createForm(e);
+      this.addForm(e);
       e.target.remove();
     }
   }

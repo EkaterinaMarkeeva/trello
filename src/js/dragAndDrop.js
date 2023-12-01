@@ -41,6 +41,7 @@ export default class DragAndDrop {
 
       this.oldElem = this.addElement(position, newCard);
     }
+    // console.log('onMouseOver', position);
   };
 
   onMouseUp(e) {
@@ -48,6 +49,18 @@ export default class DragAndDrop {
       this.oldElem.remove();
       this.addElement(this.position, this.activeElement);
     }
+
+    this.target.lists[this.activeElement.getAttribute('data-column-index')] = this.target.lists[this.activeElement.getAttribute('data-column-index')].filter(elem => elem.getAttribute('data-index') !== this.activeElement.getAttribute('data-index'));
+
+    this.activeElement.setAttribute('data-column-index', this.position[0]);
+    this.activeElement.setAttribute('data-index', this.position[1]);
+
+    this.target.lists[this.activeElement.getAttribute('data-column-index')].forEach(elem => {
+      if (elem.getAttribute('data-index') >= this.activeElement.getAttribute('data-index'))
+        elem.setAttribute('data-index', +elem.getAttribute('data-index') + 1);
+    });
+
+    this.target.lists[this.activeElement.getAttribute('data-column-index')].push(this.activeElement);
 
     this.activeElement.classList.remove('dragged');
     this.board.style.cursor = 'auto';
@@ -72,8 +85,11 @@ export default class DragAndDrop {
       const centerElem = top + height / 2;
 
       if (this.cursorPosition >= centerElem) {
+        
+      // console.log(elem, [elem.getAttribute('data-column-index'), +elem.getAttribute('data-index') + 1]);
         return [elem.getAttribute('data-column-index'), +elem.getAttribute('data-index') + 1];
       } else {
+        // console.log(elem, [elem.getAttribute('data-column-index'), +elem.getAttribute('data-index')]);
         return [elem.getAttribute('data-column-index'), elem.getAttribute('data-index')];
       }
     }
@@ -85,15 +101,18 @@ export default class DragAndDrop {
 
       if (this.cursorPosition >= centerElem) {
         const cards = elem.querySelector('.cards');
-
+        // console.log(elem, [elem.id, cards.children.length]);
         return [elem.id, cards.children.length];
       } else {
+        // console.log(elem, [elem.id, 0]);
         return [elem.id, 0];
       }
     }
+    // console.log('canDrop+'. elem);
   };
 
   addElement(position, elem) {
+    // console.log('addElement', position);
     const col = document.getElementById(position[0]);
 
     if (!col) return;
