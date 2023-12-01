@@ -1,8 +1,11 @@
 import DragAndDrop from './dragAndDrop';
 import View from './view';
+import State from './state';
 
 export default class Controller {
-  constructor() {
+  constructor(stateService) {
+    this.stateService = stateService;
+    this.state = new State();
     this.lists = {
       'todo': [],
       'progress': [],
@@ -14,13 +17,19 @@ export default class Controller {
 
   init() {
     this.registrationEvents();
+
+    window.onload = this.onLoadListener.bind(this);
+    window.onunload = this.onSaveListener.bind(this);
   }
 
   registrationEvents() {
+    const s = document.getElementById('q');
+    s.addEventListener('click', this.onSaveListener.bind(this));
+
     const board = document.querySelector('.board');
     const addCards = board.querySelectorAll('.btn-add');
     this.onCellClick = this.onCellClick.bind(this);
-
+    
     addCards.forEach(addCard => addCard.addEventListener('click', this.onCellClick));
   }
 
@@ -28,24 +37,6 @@ export default class Controller {
     const elem = e.target;
     const parent = elem.closest('.column');
     const form = this.view.createForm();
-    // const form = document.createElement('form');
-    // const textarea = document.createElement('textarea');
-    // const btnAddCard = document.createElement('button');
-    // const btnDelete = document.createElement('button');
-    
-    // textarea.placeholder = "Enter a title for this card...";
-    // btnAddCard.textContent = "Add Card";
-    // btnDelete.textContent = `\u{00d7}`;
-    
-    // form.classList.add('form');
-    // btnAddCard.classList.add('btn');
-    // btnAddCard.classList.add('btn-add-crd');
-    // btnDelete.classList.add('btn-delete');
-    
-    // form.appendChild(textarea);
-    // form.appendChild(btnAddCard);
-    // form.appendChild(btnDelete);
-    
     parent.appendChild(form);
 
     const btnAddCard = parent.querySelector('.btn-add-crd');
@@ -58,8 +49,6 @@ export default class Controller {
   addButton(e) {
     const elem = e.target;
     const parent = elem.closest('.column');
-
-    // const button = document.createElement('button');
     const button = this.view.createButton();
 
     button.classList.add('btn');
@@ -71,39 +60,20 @@ export default class Controller {
     button.addEventListener('click', this.onCellClick);
   }
 
-  addNewCard(e) {
+  addNewCard(e, title) {
     const elem = e.target;
     const parent = elem.closest('.column');
     const cards = parent.querySelector('.cards');
-    const newCard = this.view.createNewCard(e);
-    // const data = this.getDataForm();
-    // const index = this.lists[parent.id].length;
-
-    // const newCard = document.createElement('div');
-    // const btnDelete = document.createElement('button');
-
-    // newCard.classList.add('card');
-    // btnDelete.classList.add('btn-delete');
-
-    // newCard.dataset.index = index;
-    // newCard.dataset.columnIndex = parent.id;
-    // newCard.textContent = data;
-    // btnDelete.textContent = `\u{00d7}`;
+    const newCard = this.view.createNewCard(e, title);
 
     this.lists[parent.id].push(newCard);
 
-    // newCard.appendChild(btnDelete);
     cards.appendChild(newCard);
     
     const btnDelete = newCard.querySelector('.btn-delete');
 
     btnDelete.addEventListener('click', this.onCellClick);
   }
-
-  // getDataForm() {
-  //   const textarea = document.querySelector('textarea');
-  //   return textarea.value;
-  // }
 
   removeForm(e) {
     const elem = e.target;
@@ -121,8 +91,8 @@ export default class Controller {
 
     if (form) {
       if (!elem.className.includes('delete')) {
-        if (this.view.getDataForm()) {
-          this.addNewCard(e);
+        if (this.getDataForm()) {
+          this.addNewCard(e, this.getDataForm());
           this.addButton(e);
           this.removeForm(e);
         } else {
@@ -136,10 +106,57 @@ export default class Controller {
       }
     } else if (card) {
       this.lists[card.getAttribute('data-column-index')] = this.lists[card.getAttribute('data-column-index')].filter(el => el.getAttribute('data-index') !== card.getAttribute('data-index'));
+      
       card.remove();
     } else {
       this.addForm(e);
       e.target.remove();
     }
+  }
+  
+  getDataForm() {
+    const textarea = document.querySelector('textarea');
+    return textarea.value;
+  }
+
+  onSaveListener() {
+    this.stateService.clear();
+
+    const result = {
+      lists: {
+        'todo': [],
+        'progress': [],
+        'done': []
+      }
+    };
+    
+    for (let list in this.lists) {
+      this.lists[list].forEach(el => {
+        result.lists[list][el.getAttribute('data-index')] = el.textContent;
+      });
+        
+    }
+    console.log('onSaveListener', result);
+    this.stateService.save(result);
+  }
+
+  onLoadListener() {
+    if(!State.from(this.stateService.load())) return;
+    const newState = State.from(this.stateService.load());
+
+    
+    for (let key in this.state) {
+      this.state[key] = newState[key];
+    }
+
+    // console.log('onLoadListener', this.state);
+    for (let list in this.state.lists) {
+    // console.log('onLoadListener', this.state.lists[list]);
+      this.state.lists[list].forEach((title, index) => {
+        // console.log('f'); 
+        this.view.createCardByData(list, index, title);
+      });
+    }
+    
   }
 }

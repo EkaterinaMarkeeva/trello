@@ -1,10 +1,7 @@
-// import DragAndDrop from "./dragAndDrop";
 import Controller from "./controller";
-// import Form from "./form";
+import StateService from "./stateServer";
 
-// const newForm = new Form();
-
-// const dragAndDrop = new DragAndDrop();
-const ctr = new Controller();
+const stateService = new StateService(localStorage);
+const ctr = new Controller(stateService);
 
 ctr.init();

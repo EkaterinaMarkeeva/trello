@@ -11,7 +11,6 @@ export default class View {
     
     textarea.placeholder = "Enter a title for this card...";
     btnAddCard.textContent = "Add Card";
-    btnDelete.textContent = `\u{00d7}`;
     
     form.classList.add('form');
     btnAddCard.classList.add('btn');
@@ -35,10 +34,10 @@ export default class View {
     return button;
   }
 
-  createNewCard(e) {
+  createNewCard(e, title) {
     const elem = e.target;
     const parent = elem.closest('.column');
-    const data = this.getDataForm();
+    const data = title;
     const index = this.target.lists[parent.id].length;
 
     const newCard = document.createElement('div');
@@ -50,15 +49,30 @@ export default class View {
     newCard.dataset.index = index;
     newCard.dataset.columnIndex = parent.id;
     newCard.textContent = data;
-    btnDelete.textContent = `\u{00d7}`;
 
     newCard.appendChild(btnDelete);
     
     return newCard;
   }
 
-  getDataForm() {
-    const textarea = document.querySelector('textarea');
-    return textarea.value;
+  createCardByData(parentId, index, title) {
+    const parent = document.getElementById(parentId);
+    const cards = parent.querySelector('.cards');
+    const newCard = document.createElement('div');
+    const btnDelete = document.createElement('button');
+
+    newCard.classList.add('card');
+    btnDelete.classList.add('btn-delete');
+
+    newCard.dataset.index = index;
+    newCard.dataset.columnIndex = parentId;
+    newCard.textContent = title;
+
+    this.target.lists[parentId].push(newCard);
+    
+    btnDelete.addEventListener('click', this.target.onCellClick);
+
+    newCard.appendChild(btnDelete);
+    cards.appendChild(newCard);
   }
 }

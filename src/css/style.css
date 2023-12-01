@@ -63,11 +63,16 @@ textarea {
   box-sizing: border-box;
 }
 
-.btn-delete {
-  width: 20px;
-  height: 20px;
+.btn-delete::before {
+  content: '\2573';
+  font-size: 7px;
+  line-height: 17px;
+}
+
+.btn-delete {  
   border: none;
 }
+
 
 .dragged {
   border-radius: 10px;
