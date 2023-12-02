@@ -23,9 +23,6 @@ export default class Controller {
   }
 
   registrationEvents() {
-    const s = document.getElementById('q');
-    s.addEventListener('click', this.onSaveListener.bind(this));
-
     const board = document.querySelector('.board');
     const addCards = board.querySelectorAll('.btn-add');
     this.onCellClick = this.onCellClick.bind(this);
@@ -37,6 +34,7 @@ export default class Controller {
     const elem = e.target;
     const parent = elem.closest('.column');
     const form = this.view.createForm();
+
     parent.appendChild(form);
 
     const btnAddCard = parent.querySelector('.btn-add-crd');
@@ -53,6 +51,7 @@ export default class Controller {
 
     button.classList.add('btn');
     button.classList.add('btn-add');
+
     button.textContent = '+ Add another card';
 
     parent.appendChild(button);
@@ -67,7 +66,6 @@ export default class Controller {
     const newCard = this.view.createNewCard(e, title);
 
     this.lists[parent.id].push(newCard);
-
     cards.appendChild(newCard);
     
     const btnDelete = newCard.querySelector('.btn-delete');
@@ -106,7 +104,11 @@ export default class Controller {
       }
     } else if (card) {
       this.lists[card.getAttribute('data-column-index')] = this.lists[card.getAttribute('data-column-index')].filter(el => el.getAttribute('data-index') !== card.getAttribute('data-index'));
-      
+      this.lists[card.getAttribute('data-column-index')].forEach(elem => {
+        if (elem.getAttribute('data-index') >= card.getAttribute('data-index'))
+        elem.setAttribute('data-index', +elem.getAttribute('data-index') - 1);
+      });
+
       card.remove();
     } else {
       this.addForm(e);
@@ -116,13 +118,14 @@ export default class Controller {
   
   getDataForm() {
     const textarea = document.querySelector('textarea');
+
     return textarea.value;
   }
 
   onSaveListener() {
     this.stateService.clear();
 
-    const result = {
+    this.state = {
       lists: {
         'todo': [],
         'progress': [],
@@ -132,31 +135,25 @@ export default class Controller {
     
     for (let list in this.lists) {
       this.lists[list].forEach(el => {
-        result.lists[list][el.getAttribute('data-index')] = el.textContent;
-      });
-        
+        this.state.lists[list][el.getAttribute('data-index')] = el.textContent;
+      }); 
     }
-    console.log('onSaveListener', result);
-    this.stateService.save(result);
+
+    this.stateService.save(this.state);
   }
 
   onLoadListener() {
     if(!State.from(this.stateService.load())) return;
     const newState = State.from(this.stateService.load());
-
     
     for (let key in this.state) {
       this.state[key] = newState[key];
     }
 
-    // console.log('onLoadListener', this.state);
     for (let list in this.state.lists) {
-    // console.log('onLoadListener', this.state.lists[list]);
       this.state.lists[list].forEach((title, index) => {
-        // console.log('f'); 
         this.view.createCardByData(list, index, title);
       });
     }
-    
   }
 }

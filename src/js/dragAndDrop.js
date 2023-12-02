@@ -51,21 +51,34 @@ export default class DragAndDrop {
 
     this.target.lists[this.activeElement.getAttribute('data-column-index')] = this.target.lists[this.activeElement.getAttribute('data-column-index')].filter(elem => elem.getAttribute('data-index') !== this.activeElement.getAttribute('data-index'));
     
-    this.activeElement.setAttribute('data-column-index', this.position[0]);
-    this.activeElement.setAttribute('data-index', this.position[1]);
+    this.target.lists[this.activeElement.getAttribute('data-column-index')].forEach(elem => {
+      if (elem.getAttribute('data-index') >= this.activeElement.getAttribute('data-index')) {
+        elem.setAttribute('data-index', +elem.getAttribute('data-index') - 1);
+      }
+    });
+    
+    if (this.activeElement.getAttribute('data-column-index') !== this.position[0]) {
+      this.activeElement.setAttribute('data-column-index', this.position[0]);
+      this.activeElement.setAttribute('data-index', this.position[1]);
+    } else {
+      if (this.position[1] === 0) {
+        this.activeElement.setAttribute('data-index', this.position[1]);
+      } else {
+        this.activeElement.setAttribute('data-index', this.position[1] - 1);
+      }
+    }
 
     this.target.lists[this.activeElement.getAttribute('data-column-index')].forEach(elem => {
-      if (elem.getAttribute('data-index') >= this.activeElement.getAttribute('data-index'))
+      if (elem.getAttribute('data-index') >= this.activeElement.getAttribute('data-index')) {
         elem.setAttribute('data-index', +elem.getAttribute('data-index') + 1);
+      }
     });
-
+  
     this.target.lists[this.activeElement.getAttribute('data-column-index')].push(this.activeElement);
-
-    console.log(this.target.lists);
-
     this.activeElement.classList.remove('dragged');
-    this.board.style.cursor = 'auto';
-
+    
+    // this.activeElement.style.cursor = 'auto';
+    // this.board.style.cursor = 'grabbing';
     this.activeElement = null;
 
     document.documentElement.removeEventListener('mouseup', this.onMouseUp);
@@ -82,7 +95,6 @@ export default class DragAndDrop {
 
     if (elem.getAttribute('data-index')) {
       const { top, height } = elem.getBoundingClientRect();
-
       const centerElem = top + height / 2;
 
       if (this.cursorPosition >= centerElem) {
@@ -94,12 +106,16 @@ export default class DragAndDrop {
 
     if (elem.className.includes('column')) {
       const { top, height } = elem.getBoundingClientRect();
-      
       const centerElem = top + height / 2;
 
       if (this.cursorPosition >= centerElem) {
         const cards = elem.querySelector('.cards');
-        return [elem.id, cards.children.length];
+        const card = elem.querySelector('.card');
+        if (card) {
+          return [elem.id, cards.children.length - 2];
+        } else {
+          return [elem.id, cards.children.length];
+        }
       } else {
         return [elem.id, 0];
       }
@@ -137,7 +153,7 @@ export default class DragAndDrop {
       this.shiftY = e.clientY - top;
 
       this.activeElement.classList.add('dragged');
-      this.activeElement.style.cursor = 'grabbing';
+      // this.activeElement.style.cursor = 'grabbing';
       this.activeElement.style.width = this.activeElementWidth;
       this.activeElement.style.height = this.activeElementHeight;
       

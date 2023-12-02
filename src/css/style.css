@@ -81,7 +81,9 @@ textarea {
   pointer-events: none;
   background: #fff;
   box-sizing: border-box;
-  /* cursor: grabbing; */
+  
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
 }
 
 
