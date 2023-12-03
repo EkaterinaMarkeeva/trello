@@ -48,8 +48,6 @@ export default class DragAndDrop {
       this.oldElem.remove();
     }
 
-    this.addElement(this.position, this.activeElement);
-
     this.target.lists[this.activeElement.getAttribute('data-column-index')] = this.target.lists[this.activeElement.getAttribute('data-column-index')].filter(elem => elem.getAttribute('data-index') !== this.activeElement.getAttribute('data-index'));
     
     this.target.lists[this.activeElement.getAttribute('data-column-index')].forEach(elem => {
@@ -60,14 +58,17 @@ export default class DragAndDrop {
     
     this.activeElement.setAttribute('data-column-index', this.position[0]);
     this.activeElement.setAttribute('data-index', this.position[1]);
-
-    this.target.lists[this.activeElement.getAttribute('data-column-index')].forEach(elem => {
-      if (elem.getAttribute('data-index') >= this.activeElement.getAttribute('data-index')) {
-        elem.setAttribute('data-index', +elem.getAttribute('data-index') + 1);
-      }
-    });
-  
+    
     this.target.lists[this.activeElement.getAttribute('data-column-index')].push(this.activeElement);
+    this.addElement(this.position, this.activeElement);
+
+    const column = document.getElementById(this.activeElement.getAttribute('data-column-index'));
+    const cards = column.querySelectorAll('.card');
+    
+    cards.forEach((card, idx) => {
+      card.setAttribute('data-index', idx);
+    });
+    
     this.activeElement.classList.remove('dragged');
     
     // this.activeElement.style.cursor = 'auto';
