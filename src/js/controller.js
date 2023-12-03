@@ -42,7 +42,7 @@ export default class Controller {
     
     btnAddCard.addEventListener('click', this.onCellClick);
     btnDelete.addEventListener('click', this.onCellClick);
-  };
+  }
 
   addButton(e) {
     const elem = e.target;

@@ -41,13 +41,14 @@ export default class DragAndDrop {
 
       this.oldElem = this.addElement(position, newCard);
     }
-  };
+  }
 
-  onMouseUp(e) {
+  onMouseUp() {
     if (this.oldElem) {
       this.oldElem.remove();
-      this.addElement(this.position, this.activeElement);
     }
+
+    this.addElement(this.position, this.activeElement);
 
     this.target.lists[this.activeElement.getAttribute('data-column-index')] = this.target.lists[this.activeElement.getAttribute('data-column-index')].filter(elem => elem.getAttribute('data-index') !== this.activeElement.getAttribute('data-index'));
     
@@ -57,16 +58,8 @@ export default class DragAndDrop {
       }
     });
     
-    if (this.activeElement.getAttribute('data-column-index') !== this.position[0]) {
-      this.activeElement.setAttribute('data-column-index', this.position[0]);
-      this.activeElement.setAttribute('data-index', this.position[1]);
-    } else {
-      if (this.position[1] === 0) {
-        this.activeElement.setAttribute('data-index', this.position[1]);
-      } else {
-        this.activeElement.setAttribute('data-index', this.position[1] - 1);
-      }
-    }
+    this.activeElement.setAttribute('data-column-index', this.position[0]);
+    this.activeElement.setAttribute('data-index', this.position[1]);
 
     this.target.lists[this.activeElement.getAttribute('data-column-index')].forEach(elem => {
       if (elem.getAttribute('data-index') >= this.activeElement.getAttribute('data-index')) {
@@ -78,7 +71,6 @@ export default class DragAndDrop {
     this.activeElement.classList.remove('dragged');
     
     // this.activeElement.style.cursor = 'auto';
-    // this.board.style.cursor = 'grabbing';
     this.activeElement = null;
 
     document.documentElement.removeEventListener('mouseup', this.onMouseUp);
@@ -88,7 +80,7 @@ export default class DragAndDrop {
 
       column.removeEventListener('mouseover', this.onMouseOver);
     }
-  };
+  }
 
   canDrop(e) {
     const elem = e.target;
@@ -111,8 +103,9 @@ export default class DragAndDrop {
       if (this.cursorPosition >= centerElem) {
         const cards = elem.querySelector('.cards');
         const card = elem.querySelector('.card');
+
         if (card) {
-          return [elem.id, cards.children.length - 2];
+          return [elem.id, cards.children.length - 1];
         } else {
           return [elem.id, cards.children.length];
         }
@@ -120,7 +113,7 @@ export default class DragAndDrop {
         return [elem.id, 0];
       }
     }
-  };
+  }
 
   addElement(position, elem) {
     const col = document.getElementById(position[0]);
@@ -165,7 +158,7 @@ export default class DragAndDrop {
         column.addEventListener('mouseover', this.onMouseOver);
       }
     }
-  };
+  }
 
   createNewElement() {
     const div = document.createElement('div');

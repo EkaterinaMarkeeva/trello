@@ -82,8 +82,8 @@ textarea {
   background: #fff;
   box-sizing: border-box;
   
-    cursor: -webkit-grabbing;
-    cursor: grabbing;
+  /* cursor: -webkit-grabbing;
+  cursor: grabbing; */
 }
 
 

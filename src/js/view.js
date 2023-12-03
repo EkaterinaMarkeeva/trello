@@ -22,7 +22,7 @@ export default class View {
     form.appendChild(btnDelete);
 
     return form;
-  };
+  }
 
   createButton() {
     const button = document.createElement('button');
